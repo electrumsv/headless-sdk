@@ -23,8 +23,9 @@ jobs:
   steps :
     # Note: For windows we use the official python.org embedded python
     - pwsh: |
-        Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile $(BUILD_PATH)/cpython-3.9.6-x86_64.zip
-        Expand-Archive -LiteralPath $(BUILD_PATH)/cpython-3.9.6-x86_64.zip -DestinationPath $(BUILD_PATH)/cpython-3.9.6-x86_64
+        mkdir -p $(BUILD_PATH)
+        Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile "$env:BUILD_PATH/cpython-3.9.6-x86_64.zip"
+        Expand-Archive -Path "$env:BUILD_PATH/cpython-3.9.6-x86_64.zip" -DestinationPath "$env:BUILD_PATH/cpython-3.9.6-x86_64"
       displayName: 'pull embedded python'
 
     - pwsh: |
@@ -33,7 +34,7 @@ jobs:
         echo "testing" > testfile.txt
         cd ..
 
-        git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
+        git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git "$(SDK_REPO_DIR)"
       displayName: 'clone ElectrumSV-SDK & make empty artifact dir'
 
     - pwsh: |
@@ -43,21 +44,21 @@ jobs:
 
     # Overwrites existing $env:PYTHON_DIR.zip archive
     - pwsh: |
-        Compress-Archive -Path "$env:PYTHON_DIR" -DestinationPath "$env:PYTHON_DIR.zip" -Force
-        Compress-Archive -Path "$env:SDK_DATADIR" -DestinationPath "$env:SDK_DATADIR.zip"
+        Compress-Archive -Path "$env:PYTHON_DIR" -DestinationPath "$env:PYTHON_DIR/cpython-3.9.6-x86_64.zip" -Force
+        Compress-Archive -Path "$env:SDK_DATADIR" -DestinationPath "$env:BUILD_PATH/ElectrumSV-SDK.zip"
       displayName: 'Create compressed archives'
 
     - task: PublishBuildArtifacts@1
       displayName: 'publish pre-installed python'
       inputs:
         artifactName: 'Win32Python'
-        pathtoPublish: '$(PYTHON_DIR).zip'
+        pathtoPublish: '$(PYTHON_DIR)/cpython-3.9.6-x86_64.zip'
 
     - task: PublishBuildArtifacts@1
       displayName: 'publish ElectrumSV-SDK datadir'
       inputs:
         artifactName: 'Win32SDKDatadir'
-        pathtoPublish: '$(SDK_DATADIR).zip'
+        pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.zip'
 
 
 - job: BuildLinux
@@ -76,15 +77,15 @@ jobs:
         set -e
         sudo apt-get update
         sudo apt-get install zstd
-        mkdir -p $(BUILD_PATH)/cpython-3.9.6-x86_64
+        mkdir -p $(PYTHON_DIR)
         wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-unknown-linux-gnu-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
-        tar -axvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst -C $(BUILD_PATH)/cpython-3.9.6-x86_64
+        tar -axvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst -C $(PYTHON_DIR)
       displayName: 'pull embedded python'
 
     - script: |
         set -e
-        mkdir -p $(Build.BinariesDirectory)/linux/ElectrumSV-SDK
-        cd $(Build.BinariesDirectory)/linux/ElectrumSV-SDK
+        mkdir -p $(SDK_DATADIR)
+        cd $(SDK_DATADIR)
         echo "testing" > testfile.txt
         cd ..
 
@@ -97,21 +98,23 @@ jobs:
       displayName: 'configure python'
 
     - script: |
-        tar -czf $(PYTHON_DIR).tar.gz cpython-3.9.6-x86_64
-        tar -czf $(SDK_DATADIR).tar.gz ElectrumSV-SDK
+        cd $(PYTHON_DIR)
+        tar -czf cpython-3.9.6-x86_64.tar.gz python
+        cd $(BUILD_PATH)
+        tar -czf ElectrumSV-SDK.tar.gz ElectrumSV-SDK
       displayName: 'Create compressed archives'
 
     - task: PublishBuildArtifacts@1
       displayName: 'publish pre-installed python'
       inputs:
         artifactName: 'LinuxPython'
-        pathtoPublish: '$(PYTHON_DIR).tar.gz'
+        pathtoPublish: '$(PYTHON_DIR)/cpython-3.9.6-x86_64.tar.gz'
 
     - task: PublishBuildArtifacts@1
       displayName: 'publish ElectrumSV-SDK datadir'
       inputs:
         artifactName: 'LinuxSDKDatadir'
-        pathtoPublish: '$(SDK_DATADIR).tar.gz'
+        pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.tar.gz'
 
 - job: BuildMacOSX
 
@@ -128,16 +131,16 @@ jobs:
     - script: |
         set -e
         brew install zstd
-        mkdir -p $(BUILD_PATH)/cpython-3.9.6-x86_64
+        mkdir -p $(PYTHON_DIR)
         wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-apple-darwin-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
         zstd -d $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
-        tar -xvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar -C $(BUILD_PATH)/cpython-3.9.6-x86_64ir'
+        tar -xvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar -C $(PYTHON_DIR)
       displayName: 'pull embedded python'
 
     - script: |
         set -e
-        mkdir -p $(Build.BinariesDirectory)/linux/ElectrumSV-SDK
-        cd $(Build.BinariesDirectory)/linux/ElectrumSV-SDK
+        mkdir -p $(SDK_DATADIR)
+        cd $(SDK_DATADIR)
         echo "testing" > testfile.txt
         cd ..
 
@@ -150,18 +153,20 @@ jobs:
       displayName: 'configure python'
 
     - script: |
-        tar -czf $(PYTHON_DIR).tar.gz cpython-3.9.6-x86_64
-        tar -czf $(SDK_DATADIR).tar.gz ElectrumSV-SDK
+        cd $(PYTHON_DIR)
+        tar -czf cpython-3.9.6-x86_64.tar.gz python
+        cd $(BUILD_PATH)
+        tar -czf ElectrumSV-SDK.tar.gz ElectrumSV-SDK
       displayName: 'Create compressed archives'
 
     - task: PublishBuildArtifacts@1
       displayName: 'publish pre-installed python'
       inputs:
         artifactName: 'MacosPython'
-        pathtoPublish: '$(PYTHON_DIR).tar.gz'
+        pathtoPublish: '$(PYTHON_DIR)/cpython-3.9.6-x86_64.tar.gz'
 
     - task: PublishBuildArtifacts@1
       displayName: 'publish ElectrumSV-SDK datadir'
       inputs:
         artifactName: 'MacosSDKDatadir'
-        pathtoPublish: '$(SDK_DATADIR).tar.gz'
+        pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.tar.gz'
