@@ -1,0 +1,43 @@
+steps:
+- script: |
+    set -e
+    sudo apt-get update
+    sudo apt-get install zstd
+    mkdir -p $(PYTHON_DIR)
+    wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-unknown-linux-gnu-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
+    tar -axvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst -C $(PYTHON_DIR)
+  displayName: 'pull embedded python'
+
+- script: |
+    set -e
+    mkdir -p $(SDK_DATADIR)
+    cd $(SDK_DATADIR)
+    echo "testing" > testfile.txt
+    cd ..
+
+    git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
+  displayName: 'clone ElectrumSV-SDK & make empty artifact dir'
+
+- script: |
+    echo "Todo: pass an env var SDK_HOME_DATADIR into the setup.py which should allow for a local SDK datadir"
+    echo "Todo: allow for a pip install template (requires --target arg for this to work)"
+  displayName: 'configure python'
+
+- script: |
+    cd $(PYTHON_DIR)
+    tar -czf cpython-3.9.6-x86_64.tar.gz python
+    cd $(BUILD_PATH)
+    tar -czf ElectrumSV-SDK.tar.gz ElectrumSV-SDK
+  displayName: 'Create compressed archives'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'publish pre-installed python'
+  inputs:
+    artifactName: 'LinuxPython'
+    pathtoPublish: '$(PYTHON_DIR)/cpython-3.9.6-x86_64.tar.gz'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'publish ElectrumSV-SDK datadir'
+  inputs:
+    artifactName: 'LinuxSDKDatadir'
+    pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.tar.gz'
