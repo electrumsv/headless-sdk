@@ -21,6 +21,7 @@ jobs:
     PYTHON_SCRIPTS_DIR: '$(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\Scripts'
     SDK_DATADIR: '$(Build.BinariesDirectory)\win32\ElectrumSV-SDK'
     SDK_REPO_DIR: '$(Build.BinariesDirectory)\win32\sdk_repo'
+    SDK_LOG_LEVEL: 'DEBUG'
 
   steps :
     # Note: For windows we use the official python.org embedded python
@@ -43,16 +44,39 @@ jobs:
         $env:TOP_LEVEL_DIR=$PWD
         git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git "$(SDK_REPO_DIR)"
         cd $(SDK_REPO_DIR)
-        $(PYTHON_EXE) -m pip install -e .
+        $(PYTHON_EXE) -m pip install .
         cd $env:TOP_LEVEL_DIR
       displayName: 'install ElectrumSV-SDK'
 
+    # No point installing whatsonchain packages - won't be used in electron app and it is a node.js
+    # application anyway
     - pwsh: |
         $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk config --sdk-home-dir=$(SDK_DATADIR)
+
         $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install node
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start node
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install electrumx
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install electrumsv
+      displayName: 'pre-install python-based SDK components'
+
+    - pwsh: |
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background status_monitor
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background node
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background electrumx
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk node generate 1
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background --deterministic-seed electrumsv
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk status
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk node --id=node1 getinfo
+      displayName: 'start all python-based components (testing)'
+      continueOnError: true
+
+    - script: |
         $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop node
-      displayName: 'pre-install SDK components'
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop electrumx
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop electrumsv
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop status_monitor
+        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk status
+      displayName: 'stop all python-based components (testing)'
+      continueOnError: true
 
     # Overwrites existing $env:PYTHON_DIR.zip archive
     - pwsh: |
