@@ -23,8 +23,8 @@ jobs:
   steps :
     # Note: For windows we use the official python.org embedded python
     - pwsh: |
-        Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile $(BUILD_PATH)/cpython-3.9.6-x86_64.zip
-        Expand-Archive -LiteralPath $(BUILD_PATH)/cpython-3.9.6-x86_64.zip -DestinationPath $(BUILD_PATH)/cpython-3.9.6-x86_64
+        Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile "$(BUILD_PATH)/cpython-3.9.6-x86_64.zip"
+        Expand-Archive -Path "$(BUILD_PATH)/cpython-3.9.6-x86_64.zip" -DestinationPath "$(BUILD_PATH)/cpython-3.9.6-x86_64"
       displayName: 'pull embedded python'
 
     - pwsh: |
@@ -33,7 +33,7 @@ jobs:
         echo "testing" > testfile.txt
         cd ..
 
-        git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
+        git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git "$(SDK_REPO_DIR)"
       displayName: 'clone ElectrumSV-SDK & make empty artifact dir'
 
     - pwsh: |
@@ -97,6 +97,8 @@ jobs:
       displayName: 'configure python'
 
     - script: |
+        mkdir cpython-3.9.6-x86_64
+        mkdir ElectrumSV-SDK
         tar -czf $(PYTHON_DIR).tar.gz cpython-3.9.6-x86_64
         tar -czf $(SDK_DATADIR).tar.gz ElectrumSV-SDK
       displayName: 'Create compressed archives'
@@ -131,7 +133,7 @@ jobs:
         mkdir -p $(BUILD_PATH)/cpython-3.9.6-x86_64
         wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-apple-darwin-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
         zstd -d $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
-        tar -xvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar -C $(BUILD_PATH)/cpython-3.9.6-x86_64ir'
+        tar -xvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar -C $(BUILD_PATH)/cpython-3.9.6-x86_64'
       displayName: 'pull embedded python'
 
     - script: |
@@ -150,6 +152,8 @@ jobs:
       displayName: 'configure python'
 
     - script: |
+        mkdir cpython-3.9.6-x86_64
+        mkdir ElectrumSV-SDK
         tar -czf $(PYTHON_DIR).tar.gz cpython-3.9.6-x86_64
         tar -czf $(SDK_DATADIR).tar.gz ElectrumSV-SDK
       displayName: 'Create compressed archives'
