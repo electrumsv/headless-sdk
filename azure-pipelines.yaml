@@ -23,8 +23,8 @@ jobs:
   steps :
     # Note: For windows we use the official python.org embedded python
     - pwsh: |
-        Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile "$(BUILD_PATH)/cpython-3.9.6-x86_64.zip"
-        Expand-Archive -Path "$(BUILD_PATH)/cpython-3.9.6-x86_64.zip" -DestinationPath "$(BUILD_PATH)/cpython-3.9.6-x86_64"
+        Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile "$env:BUILD_PATH/cpython-3.9.6-x86_64.zip"
+        Expand-Archive -Path "$env:BUILD_PATH/cpython-3.9.6-x86_64.zip" -DestinationPath "$env:BUILD_PATH/cpython-3.9.6-x86_64"
       displayName: 'pull embedded python'
 
     - pwsh: |
@@ -99,8 +99,10 @@ jobs:
     - script: |
         mkdir cpython-3.9.6-x86_64
         mkdir ElectrumSV-SDK
-        tar -czf $(PYTHON_DIR).tar.gz cpython-3.9.6-x86_64
-        tar -czf $(SDK_DATADIR).tar.gz ElectrumSV-SDK
+        cd $(PYTHON_DIR)
+        tar -czf cpython-3.9.6-x86_64.tar.gz python
+        cd $(SDK_DATADIR)/..
+        tar -czf ElectrumSV-SDK.tar.gz ElectrumSV-SDK
       displayName: 'Create compressed archives'
 
     - task: PublishBuildArtifacts@1
@@ -154,8 +156,10 @@ jobs:
     - script: |
         mkdir cpython-3.9.6-x86_64
         mkdir ElectrumSV-SDK
-        tar -czf $(PYTHON_DIR).tar.gz cpython-3.9.6-x86_64
-        tar -czf $(SDK_DATADIR).tar.gz ElectrumSV-SDK
+        cd $(PYTHON_DIR)
+        tar -czf cpython-3.9.6-x86_64.tar.gz python
+        cd $(SDK_DATADIR)/..
+        tar -czf ElectrumSV-SDK.tar.gz ElectrumSV-SDK
       displayName: 'Create compressed archives'
 
     - task: PublishBuildArtifacts@1
