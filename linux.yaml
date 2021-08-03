@@ -40,6 +40,8 @@ steps:
     sleep 5
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node --id=node1 getinfo
+
+    $(PYTHON_EXE) ./contrib/check_all_started.py
   displayName: 'start all python-based components (testing)'
   continueOnError: true
 
@@ -49,6 +51,8 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumsv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop status_monitor
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
+
+    $(PYTHON_EXE) ./contrib/check_all_stopped.py
   displayName: 'stop all python-based components (testing)'
   continueOnError: true
 
