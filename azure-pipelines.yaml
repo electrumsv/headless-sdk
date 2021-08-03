@@ -25,9 +25,7 @@ jobs:
     SDK_LOG_LEVEL: DEBUG
 
   steps:
-#    - template: windows.yaml
-    - script: |
-        echo "skipping"
+    - template: windows.yaml
 
 - job: BuildLinux
 
