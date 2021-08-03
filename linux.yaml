@@ -6,22 +6,53 @@ steps:
     mkdir -p $(PYTHON_DIR)
     wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-unknown-linux-gnu-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
     tar -axvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst -C $(PYTHON_DIR)
+    sudo apt-get install tree
+    tree $(PYTHON_DIR) -L 4
   displayName: 'pull embedded python'
 
 - script: |
-    set -e
-    mkdir -p $(SDK_DATADIR)
-    cd $(SDK_DATADIR)
-    echo "testing" > testfile.txt
-    cd ..
-
-    git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
-  displayName: 'clone ElectrumSV-SDK & make empty artifact dir'
+    wget "https://bootstrap.pypa.io/get-pip.py" -O $(PYTHON_SCRIPTS_DIR)/get-pip.py
+    $(PYTHON_EXE) $(PYTHON_SCRIPTS_DIR)/get-pip.py
+  displayName: 'install pip'
 
 - script: |
-    echo "Todo: pass an env var SDK_HOME_DATADIR into the setup.py which should allow for a local SDK datadir"
-    echo "Todo: allow for a pip install template (requires --target arg for this to work)"
-  displayName: 'configure python'
+    cp -r ./contrib/sitecustomize.py $(PYTHON_DIR)/sitecustomize.py
+    cp -r ./contrib/python39._pth $(PYTHON_DIR)/python39._pth
+    export TOP_LEVEL_DIR=$PWD
+    git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
+    cd $(SDK_REPO_DIR)
+    $(PYTHON_EXE) -m pip install .
+    cd $TOP_LEVEL_DIR
+  displayName: 'install ElectrumSV-SDK'
+
+- script: |
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk config --sdk-home-dir=$(SDK_DATADIR)
+
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install node
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumx
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumsv
+  displayName: 'pre-install python-based SDK components'
+
+- script: |
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background status_monitor
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background node
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background electrumx
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node generate 1
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background --deterministic-seed electrumsv
+    sleep 5
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node --id=node1 getinfo
+  displayName: 'start all python-based components (testing)'
+  continueOnError: true
+
+- script: |
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop node
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumx
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumsv
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop status_monitor
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
+  displayName: 'stop all python-based components (testing)'
+  continueOnError: true
 
 - script: |
     cd $(PYTHON_DIR)
@@ -41,3 +72,4 @@ steps:
   inputs:
     artifactName: 'LinuxSDKDatadir'
     pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.tar.gz'
+  continueOnError: true

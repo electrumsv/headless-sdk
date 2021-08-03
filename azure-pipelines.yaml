@@ -15,87 +15,19 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
-    BUILD_PATH: '$(Build.BinariesDirectory)\win32'
-    PYTHON_DIR: '$(Build.BinariesDirectory)\win32/cpython-3.9.6-x86_64'
-    PYTHON_EXE: '$(Build.BinariesDirectory)\win32/cpython-3.9.6-x86_64\python.exe'
-    PYTHON_SCRIPTS_DIR: '$(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\Scripts'
-    SDK_DATADIR: '$(Build.BinariesDirectory)\win32\ElectrumSV-SDK'
-    SDK_REPO_DIR: '$(Build.BinariesDirectory)\win32\sdk_repo'
-    SDK_LOG_LEVEL: 'DEBUG'
+    pythonVersion: 3.9
+    BUILD_PATH: $(Build.BinariesDirectory)\win32
+    PYTHON_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\python.exe
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\Scripts
+    SDK_DATADIR: $(Build.BinariesDirectory)\win32\ElectrumSV-SDK
+    SDK_REPO_DIR: $(Build.BinariesDirectory)\win32\sdk_repo
+    SDK_LOG_LEVEL: DEBUG
 
-  steps :
-    # Note: For windows we use the official python.org embedded python
-    - pwsh: |
-        mkdir -p $(BUILD_PATH)
-        Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile $(BUILD_PATH)\cpython-3.9.6-x86_64.zip
-        Expand-Archive -Path $(BUILD_PATH)\cpython-3.9.6-x86_64.zip -DestinationPath $(PYTHON_DIR)
-      displayName: 'pull embedded python'
-
-    - pwsh: |
-        Invoke-WebRequest -uri "https://bootstrap.pypa.io/get-pip.py" -Method "GET" -Outfile $(PYTHON_DIR)\get-pip.py
-        $(PYTHON_DIR)\python.exe $(PYTHON_DIR)\get-pip.py
-      displayName: 'install pip'
-
-    - pwsh: |
-        cp -r .\windows\sitecustomize.py $(PYTHON_DIR)\sitecustomize.py
-        cp -r .\windows\python39._pth $(PYTHON_DIR)\python39._pth
-        ls $(PYTHON_DIR)
-
-        $env:TOP_LEVEL_DIR=$PWD
-        git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git "$(SDK_REPO_DIR)"
-        cd $(SDK_REPO_DIR)
-        $(PYTHON_EXE) -m pip install .
-        cd $env:TOP_LEVEL_DIR
-      displayName: 'install ElectrumSV-SDK'
-
-    # No point installing whatsonchain packages - won't be used in electron app and it is a node.js
-    # application anyway
-    - pwsh: |
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk config --sdk-home-dir=$(SDK_DATADIR)
-
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install node
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install electrumx
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install electrumsv
-      displayName: 'pre-install python-based SDK components'
-
-    - pwsh: |
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background status_monitor
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background node
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background electrumx
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk node generate 1
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background --deterministic-seed electrumsv
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk status
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk node --id=node1 getinfo
-      displayName: 'start all python-based components (testing)'
-      continueOnError: true
-
+  steps:
+#    - template: windows.yaml
     - script: |
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop node
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop electrumx
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop electrumsv
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop status_monitor
-        $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk status
-      displayName: 'stop all python-based components (testing)'
-      continueOnError: true
-
-    # Overwrites existing $env:PYTHON_DIR.zip archive
-    - pwsh: |
-        Compress-Archive -Path "$env:PYTHON_DIR" -DestinationPath "$env:PYTHON_DIR\cpython-3.9.6-x86_64.zip" -Force
-        Compress-Archive -Path "$env:SDK_DATADIR" -DestinationPath "$env:BUILD_PATH\ElectrumSV-SDK.zip"
-      displayName: 'Create compressed archives'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'publish pre-installed python'
-      inputs:
-        artifactName: 'Win32Python'
-        pathtoPublish: '$(PYTHON_DIR)\cpython-3.9.6-x86_64.zip'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'publish ElectrumSV-SDK datadir'
-      inputs:
-        artifactName: 'Win32SDKDatadir'
-        pathtoPublish: '$(BUILD_PATH)\ElectrumSV-SDK.zip'
-
+        echo "skipping"
 
 - job: BuildLinux
 
@@ -103,15 +35,19 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   variables:
-    BUILD_PATH: '$(Build.BinariesDirectory)/linux'
-    PYTHON_DIR: '$(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64'
-    SDK_DATADIR: '$(Build.BinariesDirectory)/linux/ElectrumSV-SDK'
-    SDK_REPO_DIR: '$(Build.BinariesDirectory)/linux/sdk_repo'
+    pythonVersion: 3.9
+    BUILD_PATH: $(Build.BinariesDirectory)/linux
+    PYTHON_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/bin/python3
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/bin
+    SDK_DATADIR: $(Build.BinariesDirectory)/linux/ElectrumSV-SDK
+    SDK_REPO_DIR: $(Build.BinariesDirectory)/linux/sdk_repo
+
+    PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
+    SDK_LOG_LEVEL: DEBUG
 
   steps :
-#    - template: linux.yaml
-    - script: |
-        echo "skipping"
+    - template: linux.yaml
 
 - job: BuildMacOSX
 
@@ -119,10 +55,10 @@ jobs:
     vmImage: 'macOS-10.15'
 
   variables:
-    BUILD_PATH: '$(Build.BinariesDirectory)/macosx'
-    PYTHON_DIR: '$(Build.BinariesDirectory)/macosx/cpython-3.9.6-x86_64'
-    SDK_DATADIR: '$(Build.BinariesDirectory)/macosx/ElectrumSV-SDK'
-    SDK_REPO_DIR: '$(Build.BinariesDirectory)/macosx/sdk_repo'
+    BUILD_PATH: $(Build.BinariesDirectory)/macosx
+    PYTHON_DIR: $(Build.BinariesDirectory)/macosx/cpython-3.9.6-x86_64
+    SDK_DATADIR: $(Build.BinariesDirectory)/macosx/ElectrumSV-SDK
+    SDK_REPO_DIR: $(Build.BinariesDirectory)/macosx/sdk_repo
 
   steps :
 #    - template: macos.yaml
