@@ -55,12 +55,16 @@ jobs:
     vmImage: 'macOS-10.15'
 
   variables:
-    BUILD_PATH: $(Build.BinariesDirectory)/macosx
-    PYTHON_DIR: $(Build.BinariesDirectory)/macosx/cpython-3.9.6-x86_64
-    SDK_DATADIR: $(Build.BinariesDirectory)/macosx/ElectrumSV-SDK
-    SDK_REPO_DIR: $(Build.BinariesDirectory)/macosx/sdk_repo
+    pythonVersion: 3.9
+    BUILD_PATH: $(Build.BinariesDirectory)/macos
+    PYTHON_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/bin/python3
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/bin
+    SDK_DATADIR: $(Build.BinariesDirectory)/macos/ElectrumSV-SDK
+    SDK_REPO_DIR: $(Build.BinariesDirectory)/macos/sdk_repo
+
+    PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
+    SDK_LOG_LEVEL: DEBUG
 
   steps :
-#    - template: macos.yaml
-    - script: |
-        echo "skipping"
+    - template: macos.yaml
