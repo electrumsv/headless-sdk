@@ -15,51 +15,17 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
-    BUILD_PATH: '$(Build.BinariesDirectory)/win32'
-    PYTHON_DIR: '$(Build.BinariesDirectory)/win32/cpython-3.9.6-x86_64'
-    SDK_DATADIR: '$(Build.BinariesDirectory)/win32/ElectrumSV-SDK'
-    SDK_REPO_DIR: '$(Build.BinariesDirectory)/win32/sdk_repo'
+    pythonVersion: 3.9
+    BUILD_PATH: $(Build.BinariesDirectory)\win32
+    PYTHON_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\python.exe
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\Scripts
+    SDK_DATADIR: $(Build.BinariesDirectory)\win32\ElectrumSV-SDK
+    SDK_REPO_DIR: $(Build.BinariesDirectory)\win32\sdk_repo
+    SDK_LOG_LEVEL: DEBUG
 
-  steps :
-    # Note: For windows we use the official python.org embedded python
-    - pwsh: |
-        mkdir -p $(BUILD_PATH)
-        Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile "$env:BUILD_PATH/cpython-3.9.6-x86_64.zip"
-        Expand-Archive -Path "$env:BUILD_PATH/cpython-3.9.6-x86_64.zip" -DestinationPath "$env:BUILD_PATH/cpython-3.9.6-x86_64"
-      displayName: 'pull embedded python'
-
-    - pwsh: |
-        mkdir -p $(Build.BinariesDirectory)/win32/ElectrumSV-SDK
-        cd $(Build.BinariesDirectory)/win32/ElectrumSV-SDK
-        echo "testing" > testfile.txt
-        cd ..
-
-        git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git "$(SDK_REPO_DIR)"
-      displayName: 'clone ElectrumSV-SDK & make empty artifact dir'
-
-    - pwsh: |
-        echo "Todo: pass an env var SDK_HOME_DATADIR into the setup.py which should allow for a local SDK datadir"
-        echo "Todo: allow for a pip install template (requires --target arg for this to work)"
-      displayName: 'configure python'
-
-    # Overwrites existing $env:PYTHON_DIR.zip archive
-    - pwsh: |
-        Compress-Archive -Path "$env:PYTHON_DIR" -DestinationPath "$env:PYTHON_DIR/cpython-3.9.6-x86_64.zip" -Force
-        Compress-Archive -Path "$env:SDK_DATADIR" -DestinationPath "$env:BUILD_PATH/ElectrumSV-SDK.zip"
-      displayName: 'Create compressed archives'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'publish pre-installed python'
-      inputs:
-        artifactName: 'Win32Python'
-        pathtoPublish: '$(PYTHON_DIR)/cpython-3.9.6-x86_64.zip'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'publish ElectrumSV-SDK datadir'
-      inputs:
-        artifactName: 'Win32SDKDatadir'
-        pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.zip'
-
+  steps:
+    - template: windows.yaml
 
 - job: BuildLinux
 
@@ -67,54 +33,19 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   variables:
-    BUILD_PATH: '$(Build.BinariesDirectory)/linux'
-    PYTHON_DIR: '$(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64'
-    SDK_DATADIR: '$(Build.BinariesDirectory)/linux/ElectrumSV-SDK'
-    SDK_REPO_DIR: '$(Build.BinariesDirectory)/linux/sdk_repo'
+    pythonVersion: 3.9
+    BUILD_PATH: $(Build.BinariesDirectory)/linux
+    PYTHON_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/bin/python3
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/bin
+    SDK_DATADIR: $(Build.BinariesDirectory)/linux/ElectrumSV-SDK
+    SDK_REPO_DIR: $(Build.BinariesDirectory)/linux/sdk_repo
+
+    PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
+    SDK_LOG_LEVEL: DEBUG
 
   steps :
-    - script: |
-        set -e
-        sudo apt-get update
-        sudo apt-get install zstd
-        mkdir -p $(PYTHON_DIR)
-        wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-unknown-linux-gnu-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
-        tar -axvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst -C $(PYTHON_DIR)
-      displayName: 'pull embedded python'
-
-    - script: |
-        set -e
-        mkdir -p $(SDK_DATADIR)
-        cd $(SDK_DATADIR)
-        echo "testing" > testfile.txt
-        cd ..
-
-        git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
-      displayName: 'clone ElectrumSV-SDK & make empty artifact dir'
-
-    - script: |
-        echo "Todo: pass an env var SDK_HOME_DATADIR into the setup.py which should allow for a local SDK datadir"
-        echo "Todo: allow for a pip install template (requires --target arg for this to work)"
-      displayName: 'configure python'
-
-    - script: |
-        cd $(PYTHON_DIR)
-        tar -czf cpython-3.9.6-x86_64.tar.gz python
-        cd $(BUILD_PATH)
-        tar -czf ElectrumSV-SDK.tar.gz ElectrumSV-SDK
-      displayName: 'Create compressed archives'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'publish pre-installed python'
-      inputs:
-        artifactName: 'LinuxPython'
-        pathtoPublish: '$(PYTHON_DIR)/cpython-3.9.6-x86_64.tar.gz'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'publish ElectrumSV-SDK datadir'
-      inputs:
-        artifactName: 'LinuxSDKDatadir'
-        pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.tar.gz'
+    - template: linux.yaml
 
 - job: BuildMacOSX
 
@@ -122,51 +53,16 @@ jobs:
     vmImage: 'macOS-10.15'
 
   variables:
-    BUILD_PATH: '$(Build.BinariesDirectory)/macosx'
-    PYTHON_DIR: '$(Build.BinariesDirectory)/macosx/cpython-3.9.6-x86_64'
-    SDK_DATADIR: '$(Build.BinariesDirectory)/macosx/ElectrumSV-SDK'
-    SDK_REPO_DIR: '$(Build.BinariesDirectory)/macosx/sdk_repo'
+    pythonVersion: 3.9
+    BUILD_PATH: $(Build.BinariesDirectory)/macos
+    PYTHON_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/bin/python3
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/bin
+    SDK_DATADIR: $(Build.BinariesDirectory)/macos/ElectrumSV-SDK
+    SDK_REPO_DIR: $(Build.BinariesDirectory)/macos/sdk_repo
+
+    PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
+    SDK_LOG_LEVEL: DEBUG
 
   steps :
-    - script: |
-        set -e
-        brew install zstd
-        mkdir -p $(PYTHON_DIR)
-        wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-apple-darwin-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
-        zstd -d $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
-        tar -xvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar -C $(PYTHON_DIR)
-      displayName: 'pull embedded python'
-
-    - script: |
-        set -e
-        mkdir -p $(SDK_DATADIR)
-        cd $(SDK_DATADIR)
-        echo "testing" > testfile.txt
-        cd ..
-
-        git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
-      displayName: 'clone ElectrumSV-SDK & make empty artifact dir'
-
-    - script: |
-        echo "Todo: pass an env var SDK_HOME_DATADIR into the setup.py which should allow for a local SDK datadir"
-        echo "Todo: allow for a pip install template (requires --target arg for this to work)"
-      displayName: 'configure python'
-
-    - script: |
-        cd $(PYTHON_DIR)
-        tar -czf cpython-3.9.6-x86_64.tar.gz python
-        cd $(BUILD_PATH)
-        tar -czf ElectrumSV-SDK.tar.gz ElectrumSV-SDK
-      displayName: 'Create compressed archives'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'publish pre-installed python'
-      inputs:
-        artifactName: 'MacosPython'
-        pathtoPublish: '$(PYTHON_DIR)/cpython-3.9.6-x86_64.tar.gz'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'publish ElectrumSV-SDK datadir'
-      inputs:
-        artifactName: 'MacosSDKDatadir'
-        pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.tar.gz'
+    - template: macos.yaml
