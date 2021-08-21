@@ -29,6 +29,7 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install node
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumx
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumsv
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install merchant_api
   displayName: 'pre-install python-based SDK components'
 
 - script: |
@@ -37,6 +38,7 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background electrumx
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node generate 1
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background --deterministic-seed electrumsv
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background merchant_api
     sleep 5
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node --id=node1 getinfo
@@ -50,6 +52,7 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumx
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumsv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop status_monitor
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop merchant_api
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
 
     $(PYTHON_EXE) ./contrib/check_all_stopped.py
@@ -57,21 +60,15 @@ steps:
   continueOnError: true
 
 - script: |
-    cd $(PYTHON_DIR)
-    tar -czf cpython-3.9.6-x86_64.tar.gz python
     cd $(BUILD_PATH)
-    tar -czf ElectrumSV-SDK.tar.gz ElectrumSV-SDK
-  displayName: 'Create compressed archives'
+    mkdir -p $(BUILD_PATH)/headless_sdk
+    cp -r $(PYTHON_DIR)/python $(BUILD_PATH)/headless_sdk/python
+    cp -r $(BUILD_PATH)/ElectrumSV-SDK $(BUILD_PATH)/headless_sdk/SDK_HOME_DIR
+    tar -czf headless-sdk-$(SDK_VERSION)-linux-x86_64.tar.gz $(BUILD_PATH)/headless_sdk
+  displayName: 'Create compressed archive'
 
 - task: PublishBuildArtifacts@1
-  displayName: 'publish pre-installed python'
+  displayName: 'publish headless SDK'
   inputs:
-    artifactName: 'LinuxPython'
-    pathtoPublish: '$(PYTHON_DIR)/cpython-3.9.6-x86_64.tar.gz'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'publish ElectrumSV-SDK datadir'
-  inputs:
-    artifactName: 'LinuxSDKDatadir'
-    pathtoPublish: '$(BUILD_PATH)/ElectrumSV-SDK.tar.gz'
-  continueOnError: true
+    artifactName: 'LinuxHeadlessSDK'
+    pathtoPublish: '$(BUILD_PATH)/headless-sdk-$(SDK_VERSION)-linux-x86_64.tar.gz'
