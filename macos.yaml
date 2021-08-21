@@ -13,6 +13,27 @@ steps:
     $(PYTHON_EXE) $(PYTHON_SCRIPTS_DIR)/get-pip.py
   displayName: 'install pip'
 
+# https://stackoverflow.com/questions/27700596/homebrew-postgres-broken
+- bash: |
+    brew install postgresql
+
+    rm -rf /usr/local/var/postgres
+    mkdir /usr/local/var/postgres
+    chmod 0700 /usr/local/var/postgres
+
+    echo postgres > pwfile.txt
+    initdb --username=postgres --pwfile=pwfile.txt /usr/local/var/postgres
+    echo 'export PATH="/usr/local/opt/postgresql/bin:$PATH"' >> /Users/runner/.bash_profile
+    export PKG_CONFIG_PATH="/usr/local/opt/postgresql/lib/pkgconfig"
+
+    pg_ctl -o "-p 5432" -D /usr/local/var/postgres start
+    psql -p 5432 -U postgres --list
+    psql -p 5432 -U postgres -c "\du"
+
+    python3 -m pip install asyncpg
+    python3 $(Build.Repository.LocalPath)/contrib/mapi_db_config.py
+  displayName: 'prepare postgres'
+
 - script: |
     cp -r ./contrib/sitecustomize.py $(PYTHON_DIR)/sitecustomize.py
     cp -r ./contrib/python39._pth $(PYTHON_DIR)/python39._pth

@@ -11,6 +11,11 @@ steps :
     $(PYTHON_EXE) $(PYTHON_DIR)\get-pip.py
   displayName: 'install pip'
 
+- script: |
+    python3 -m pip install asyncpg
+    python3 $(Build.Repository.LocalPath)/contrib/mapi_db_config.py
+  displayName: 'prepare postgres'
+
 - pwsh: |
     cp -r .\contrib\sitecustomize.py $(PYTHON_DIR)\sitecustomize.py
     cp -r .\contrib\python39._pth $(PYTHON_DIR)\python39._pth
@@ -73,4 +78,4 @@ steps :
   displayName: 'publish ElectrumSV-SDK datadir'
   inputs:
     artifactName: 'Win32SDKDatadir'
-    pathtoPublish: '$(BUILD_PATH)\headless-sdk-$env:SDK_VERSION-win32-x86_64.zip'
+    pathtoPublish: "$(BUILD_PATH)/headless-sdk-$(SDK_VERSION)-win32-x86_64.zip"

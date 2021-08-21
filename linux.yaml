@@ -14,6 +14,11 @@ steps:
   displayName: 'install pip'
 
 - script: |
+    python3 -m pip install asyncpg
+    python3 $(Build.Repository.LocalPath)/contrib/mapi_db_config.py
+  displayName: 'prepare postgres'
+
+- script: |
     cp -r ./contrib/sitecustomize.py $(PYTHON_DIR)/sitecustomize.py
     cp -r ./contrib/python39._pth $(PYTHON_DIR)/python39._pth
     export TOP_LEVEL_DIR=$PWD
