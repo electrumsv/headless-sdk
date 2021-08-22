@@ -66,10 +66,10 @@ steps:
 
 - script: |
     cd $(BUILD_PATH)
-    mkdir -p $(BUILD_PATH)/headless_sdk
-    cp -r $(PYTHON_DIR)/python $(BUILD_PATH)/headless_sdk/python
-    cp -r $(BUILD_PATH)/ElectrumSV-SDK $(BUILD_PATH)/headless_sdk/SDK_HOME_DIR
-    tar -czf headless-sdk-$(SDK_VERSION)-linux-x86_64.tar.gz $(BUILD_PATH)/headless_sdk
+    mkdir headless_sdk
+    cp -r $(PYTHON_DIR)/python headless_sdk/python
+    cp -r $(BUILD_PATH)/ElectrumSV-SDK headless_sdk/SDK_HOME_DIR
+    tar -czf headless-sdk-$(SDK_VERSION)-linux-x86_64.tar.gz headless_sdk
   displayName: 'Create compressed archive'
 
 - task: PublishBuildArtifacts@1
