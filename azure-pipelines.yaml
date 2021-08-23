@@ -74,7 +74,8 @@ jobs:
     postgres: pg12
 
   steps :
-    - template: linux.yaml
+    - script: echo "Skipping"
+#    - template: linux.yaml
 
 - job: BuildMacOSX
 
@@ -95,4 +96,5 @@ jobs:
     SDK_LOG_LEVEL: DEBUG
 
   steps :
-    - template: macos.yaml
+    - script: echo "Skipping"
+#    - template: macos.yaml
