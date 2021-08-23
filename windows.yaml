@@ -4,17 +4,17 @@ steps :
     mkdir -p $(BUILD_PATH)
     Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile $(BUILD_PATH)\cpython-3.9.6-x86_64.zip
     Expand-Archive -Path $(BUILD_PATH)\cpython-3.9.6-x86_64.zip -DestinationPath $(PYTHON_DIR)
-  displayName: 'pull embedded python'
+  displayName: 'Pull embedded python'
 
 - pwsh: |
     Invoke-WebRequest -uri "https://bootstrap.pypa.io/get-pip.py" -Method "GET" -Outfile $(PYTHON_DIR)\get-pip.py
     $(PYTHON_EXE) $(PYTHON_DIR)\get-pip.py
-  displayName: 'install pip'
+  displayName: 'Install pip'
 
 - script: |
     python3 -m pip install asyncpg
     python3 $(Build.Repository.LocalPath)/contrib/mapi_db_config.py
-  displayName: 'prepare postgres'
+  displayName: 'Prepare postgres'
 
 - pwsh: |
     cp -r .\contrib\sitecustomize.py $(PYTHON_DIR)\sitecustomize.py
@@ -28,47 +28,12 @@ steps :
     cd $env:TOP_LEVEL_DIR
   displayName: 'install ElectrumSV-SDK'
 
-# No point installing whatsonchain packages - won't be used in electron app and it is a node.js
-# application anyway
-- pwsh: |
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk config --sdk-home-dir=$(SDK_DATADIR)
-
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install node
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install electrumx
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install electrumsv
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install merchant_api
-  displayName: 'pre-install python-based SDK components'
-
-- pwsh: |
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background status_monitor
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background node
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background electrumx
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk node generate 1
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background --deterministic-seed electrumsv
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background merchant_api
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk status
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk node --id=node1 getinfo
-
-    $(PYTHON_EXE) ./contrib/check_all_started.py
-  displayName: 'start all python-based components (testing)'
-  continueOnError: true
+- template: preinstall_components.yaml
 
 - script: |
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop node
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop electrumx
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop electrumsv
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop status_monitor
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop merchant_api
-    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk status
-
-    $(PYTHON_EXE) ./contrib/check_all_stopped.py
-  displayName: 'stop all python-based components (testing)'
-  continueOnError: true
-
-- script: |
-    chmod +x $(Build.Repository.LocalPath)/contrib/make_launcher/make_exe.sh
-    $(Build.Repository.LocalPath)/contrib/make_launcher/make_exe.sh
-  displayName: 'create exe launcher'
+    python3 -m pip install pyinstaller
+    $(Build.Repository.LocalPath)/contrib/make_launcher/make_exe_win.bat
+  displayName: 'Create exe launcher'
   continueOnError: true
 
 # Overwrites existing $env:PYTHON_DIR.zip archive
@@ -78,14 +43,15 @@ steps :
     cp -r $(PYTHON_DIR) $(BUILD_PATH)/headless_sdk/python
     cp -r $(SDK_DATADIR) $(BUILD_PATH)/headless_sdk/SDK_HOME_DIR
     cp $(Build.Repository.LocalPath)/contrib/make_launcher/dist/electrumsv-sdk.exe $(BUILD_PATH)/headless_sdk/electrumsv-sdk.exe
+    cp $(Build.Repository.LocalPath)/contrib/make_launcher/.env $(BUILD_PATH)/headless_sdk/.env
     Compress-Archive -Path "$env:BUILD_PATH/headless_sdk" -DestinationPath "headless-sdk-$env:SDK_VERSION-win32-x86_64.zip"
 
-    ls $(BUILD_PATH)
+    ls $(BUILD_PATH)/headless_sdk
 
   displayName: 'Create compressed archives'
 
 - task: PublishBuildArtifacts@1
-  displayName: 'publish ElectrumSV-SDK datadir'
+  displayName: 'Publish ElectrumSV-SDK datadir'
   inputs:
-    artifactName: 'Win32SDKDatadir'
+    artifactName: 'Win32SDKHeadless'
     pathtoPublish: "$(BUILD_PATH)/headless-sdk-$(SDK_VERSION)-win32-x86_64.zip"

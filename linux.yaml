@@ -6,17 +6,17 @@ steps:
     mkdir -p $(PYTHON_DIR)
     wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-unknown-linux-gnu-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
     tar -axvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst -C $(PYTHON_DIR)
-  displayName: 'pull embedded python'
+  displayName: 'Pull embedded python'
 
 - script: |
     wget "https://bootstrap.pypa.io/get-pip.py" -O $(PYTHON_SCRIPTS_DIR)/get-pip.py
     $(PYTHON_EXE) $(PYTHON_SCRIPTS_DIR)/get-pip.py
-  displayName: 'install pip'
+  displayName: 'Install pip'
 
 - script: |
     python3 -m pip install asyncpg
     python3 $(Build.Repository.LocalPath)/contrib/mapi_db_config.py
-  displayName: 'prepare postgres'
+  displayName: 'Prepare postgres'
 
 - script: |
     cp -r ./contrib/sitecustomize.py $(PYTHON_DIR)/sitecustomize.py
@@ -26,42 +26,21 @@ steps:
     cd $(SDK_REPO_DIR)
     $(PYTHON_EXE) -m pip install .
     cd $TOP_LEVEL_DIR
-  displayName: 'install ElectrumSV-SDK'
+  displayName: 'Install ElectrumSV-SDK'
+
+- template: preinstall_components.yaml
 
 - script: |
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk config --sdk-home-dir=$(SDK_DATADIR)
+    python3 -m pip install pyinstaller
+    chmod +x $(Build.Repository.LocalPath)/contrib/make_launcher/make_exe_linux.sh
+    $(Build.Repository.LocalPath)/contrib/make_launcher/make_exe_linux.sh
 
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install node
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumx
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumsv
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install merchant_api
-  displayName: 'pre-install python-based SDK components'
+    echo "make_launcher directory:"
+    ls $(Build.Repository.LocalPath)/contrib/make_launcher
 
-- script: |
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background status_monitor
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background node
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background electrumx
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node generate 1
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background --deterministic-seed electrumsv
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background merchant_api
-    sleep 5
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node --id=node1 getinfo
-
-    $(PYTHON_EXE) ./contrib/check_all_started.py
-  displayName: 'start all python-based components (testing)'
-  continueOnError: true
-
-- script: |
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop node
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumx
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumsv
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop status_monitor
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop merchant_api
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
-
-    $(PYTHON_EXE) ./contrib/check_all_stopped.py
-  displayName: 'stop all python-based components (testing)'
+    echo "make_launcher/dist directory:"
+    ls $(Build.Repository.LocalPath)/contrib/make_launcher/dist
+  displayName: 'Create exe launcher'
   continueOnError: true
 
 - script: |
@@ -73,7 +52,7 @@ steps:
   displayName: 'Create compressed archive'
 
 - task: PublishBuildArtifacts@1
-  displayName: 'publish headless SDK'
+  displayName: 'Publish headless SDK'
   inputs:
-    artifactName: 'LinuxHeadlessSDK'
+    artifactName: 'LinuxSDKHeadless'
     pathtoPublish: '$(BUILD_PATH)/headless-sdk-$(SDK_VERSION)-linux-x86_64.tar.gz'
