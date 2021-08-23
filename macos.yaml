@@ -47,23 +47,16 @@ steps:
 - template: preinstall_components.yaml
 
 - script: |
-    python3 -m pip install pyinstaller
-    chmod +x $(Build.Repository.LocalPath)/contrib/make_launcher/make_exe_mac.sh
-    $(Build.Repository.LocalPath)/contrib/make_launcher/make_exe_mac.sh
-
-    echo "make_launcher directory:"
-    ls $(Build.Repository.LocalPath)/contrib/make_launcher
-
-    echo "make_launcher/dist directory:"
-    ls $(Build.Repository.LocalPath)/contrib/make_launcher/dist
-  displayName: 'Create exe launcher'
-  continueOnError: true
-
-- script: |
     cd $(BUILD_PATH)
     mkdir headless_sdk
     cp -r $(PYTHON_DIR)/python headless_sdk/python
     cp -r $(BUILD_PATH)/ElectrumSV-SDK headless_sdk/SDK_HOME_DIR
+
+    cp $(Build.Repository.LocalPath)/contrib/launcher/electrumsv-sdk.py headless_sdk/python/install/bin/electrumsv-sdk.py
+    cp $(Build.Repository.LocalPath)/contrib/launcher/electrumsv-sdk.sh headless_sdk/electrumsv-sdk.sh
+    cp $(Build.Repository.LocalPath)/contrib/launcher/.env headless_sdk/.env
+    chmod +x headless_sdk/electrumsv-sdk.sh
+
     tar -czf headless-sdk-$(SDK_VERSION)-macos-x86_64.tar.gz headless_sdk
   displayName: 'Create compressed archive'
 

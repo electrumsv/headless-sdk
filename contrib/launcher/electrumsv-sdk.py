@@ -1,21 +1,15 @@
-"""
-With embedded python distributions the setup.py does not produce a functional electrumsv-sdk.exe.
-Therefore we need to create a very lightweight executable launcher
-(the simplest method I could muster).
-"""
-
 import subprocess
 import sys
 from pathlib import Path
 import os
 
 
-def load_dotenv(ENV_PATH):
+def load_dotenv(env_path):
     """Avoids 3rd party 'dotenv' dependency because it significantly bloats the final exe and
     makes the startup time slow (pyinstaller --onefile option copies all files to a
     temp location each time it is called)"""
 
-    with open(ENV_PATH, 'r') as f:
+    with open(env_path, 'r') as f:
         lines = f.readlines()
         for line in lines:
             # comments
@@ -45,17 +39,28 @@ def launch_sdk():
         sys.exit(0)
 
 
-MODULE_DIR = Path(os.path.dirname(os.path.abspath(sys.executable)))
-ENV_PATH = MODULE_DIR / ".env"
-PYTHON_EXE = str(MODULE_DIR / "python" / 'python.exe')
-SDK_MAIN_ENTRYPOINT = str(MODULE_DIR / "python" / "Lib" / "site-packages" / "electrumsv_sdk" / "__main__.py")
-cmd = [PYTHON_EXE, SDK_MAIN_ENTRYPOINT]
-cmd.extend(sys.argv[1:])
-load_dotenv(ENV_PATH)
+if sys.platform == "win32":
+    MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
+    ENV_PATH = MODULE_DIR.parent.parent / ".env"
+    PYTHON_EXE = str(MODULE_DIR.parent / 'python.exe')
+    SDK_MAIN_ENTRYPOINT = str(
+        MODULE_DIR.parent / "Lib" / "site-packages" / "electrumsv_sdk" / "__main__.py")
+    cmd = [PYTHON_EXE, SDK_MAIN_ENTRYPOINT]
+    cmd.extend(sys.argv[1:])
+    load_dotenv(ENV_PATH)
+else:
+    MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
+    ENV_PATH = MODULE_DIR.parent.parent.parent / ".env"
+    PYTHON_EXE = str(MODULE_DIR / 'python.exe')
+    SDK_MAIN_ENTRYPOINT = str(
+        MODULE_DIR.parent / "lib" / "python3.9" / "site-packages" / "electrumsv_sdk" / "__main__.py")
+    cmd = [PYTHON_EXE, SDK_MAIN_ENTRYPOINT]
+    cmd.extend(sys.argv[1:])
+    load_dotenv(ENV_PATH)
 
 # # Debugging
 # print(f"MODULE_DIR={MODULE_DIR}")
-# print(ENV_PATH)
+# print(env_path)
 # print(PYTHON_EXE)
 # print(SDK_MAIN_ENTRYPOINT)
 # print(cmd)

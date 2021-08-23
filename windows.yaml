@@ -30,20 +30,18 @@ steps :
 
 - template: preinstall_components.yaml
 
-- script: |
-    python3 -m pip install pyinstaller
-    $(Build.Repository.LocalPath)/contrib/make_launcher/make_exe_win.bat
-  displayName: 'Create exe launcher'
-  continueOnError: true
-
 # Overwrites existing $env:PYTHON_DIR.zip archive
 - pwsh: |
     cd $(BUILD_PATH)
     mkdir -p $(BUILD_PATH)/headless_sdk
+
     cp -r $(PYTHON_DIR) $(BUILD_PATH)/headless_sdk/python
     cp -r $(SDK_DATADIR) $(BUILD_PATH)/headless_sdk/SDK_HOME_DIR
-    cp $(Build.Repository.LocalPath)/contrib/make_launcher/dist/electrumsv-sdk.exe $(BUILD_PATH)/headless_sdk/electrumsv-sdk.exe
-    cp $(Build.Repository.LocalPath)/contrib/make_launcher/.env $(BUILD_PATH)/headless_sdk/.env
+
+    cp $(Build.Repository.LocalPath)/contrib/launcher/electrumsv-sdk.py $(BUILD_PATH)/headless_sdk/python/Scripts/electrumsv-sdk.py
+    cp $(Build.Repository.LocalPath)/contrib/launcher/electrumsv-sdk.bat $(BUILD_PATH)/headless_sdk/electrumsv-sdk.bat
+    cp $(Build.Repository.LocalPath)/contrib/launcher/.env $(BUILD_PATH)/headless_sdk/.env
+
     Compress-Archive -Path "$env:BUILD_PATH/headless_sdk" -DestinationPath "headless-sdk-$env:SDK_VERSION-win32-x86_64.zip"
 
     ls $(BUILD_PATH)/headless_sdk
