@@ -11,6 +11,11 @@ steps :
     $(PYTHON_EXE) $(PYTHON_DIR)\get-pip.py
   displayName: 'install pip'
 
+- script: |
+    python3 -m pip install asyncpg
+    python3 $(Build.Repository.LocalPath)/contrib/mapi_db_config.py
+  displayName: 'prepare postgres'
+
 - pwsh: |
     cp -r .\contrib\sitecustomize.py $(PYTHON_DIR)\sitecustomize.py
     cp -r .\contrib\python39._pth $(PYTHON_DIR)\python39._pth
@@ -31,6 +36,7 @@ steps :
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install node
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install electrumx
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install electrumsv
+    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk install merchant_api
   displayName: 'pre-install python-based SDK components'
 
 - pwsh: |
@@ -39,6 +45,7 @@ steps :
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background electrumx
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk node generate 1
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background --deterministic-seed electrumsv
+    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk start --background merchant_api
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk status
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk node --id=node1 getinfo
 
@@ -51,6 +58,7 @@ steps :
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop electrumx
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop electrumsv
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop status_monitor
+    $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk stop merchant_api
     $(PYTHON_SCRIPTS_DIR)\electrumsv-sdk status
 
     $(PYTHON_EXE) ./contrib/check_all_stopped.py
@@ -59,18 +67,15 @@ steps :
 
 # Overwrites existing $env:PYTHON_DIR.zip archive
 - pwsh: |
-    Compress-Archive -Path "$env:PYTHON_DIR" -DestinationPath "$env:PYTHON_DIR\cpython-3.9.6-x86_64.zip" -Force
-    Compress-Archive -Path "$env:SDK_DATADIR" -DestinationPath "$env:BUILD_PATH\ElectrumSV-SDK.zip"
+    cd $env:BUILD_PATH
+    mkdir -p $env:BUILD_PATH/headless_sdk
+    cp -r $env:PYTHON_DIR $(BUILD_PATH)/headless_sdk/python
+    cp -r $env:SDK_DATADIR $(BUILD_PATH)/headless_sdk/SDK_HOME_DIR
+    Compress-Archive -Path "$env:BUILD_PATH/headless_sdk" -DestinationPath "headless-sdk-$env:SDK_VERSION-win32-x86_64.zip"
   displayName: 'Create compressed archives'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'publish pre-installed python'
-  inputs:
-    artifactName: 'Win32Python'
-    pathtoPublish: '$(PYTHON_DIR)\cpython-3.9.6-x86_64.zip'
 
 - task: PublishBuildArtifacts@1
   displayName: 'publish ElectrumSV-SDK datadir'
   inputs:
     artifactName: 'Win32SDKDatadir'
-    pathtoPublish: '$(BUILD_PATH)\ElectrumSV-SDK.zip'
+    pathtoPublish: "$(BUILD_PATH)/headless-sdk-$(SDK_VERSION)-win32-x86_64.zip"

@@ -1,4 +1,4 @@
-Embedded-Python
+Headless-SDK
 ================
 
 Overview

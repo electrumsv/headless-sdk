@@ -8,6 +8,27 @@ trigger:
   paths:
     exclude: [ 'README.md' ]
 
+resources:
+  containers:
+  - container: pg12
+    image: postgres:12
+    ports:
+      - 5432:5432
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+
+  - container: pg12-win32
+    image: stellirin/postgres-windows:12
+    ports:
+      - 5432:5432
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+
+
 jobs:
 - job: BuildWindows
 
@@ -15,6 +36,7 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
+    SDK_VERSION: 0.0.38
     pythonVersion: 3.9
     BUILD_PATH: $(Build.BinariesDirectory)\win32
     PYTHON_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64
@@ -23,6 +45,9 @@ jobs:
     SDK_DATADIR: $(Build.BinariesDirectory)\win32\ElectrumSV-SDK
     SDK_REPO_DIR: $(Build.BinariesDirectory)\win32\sdk_repo
     SDK_LOG_LEVEL: DEBUG
+
+  services:
+    postgres: pg12-win32
 
   steps:
     - template: windows.yaml
@@ -33,6 +58,7 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   variables:
+    SDK_VERSION: 0.0.38
     pythonVersion: 3.9
     BUILD_PATH: $(Build.BinariesDirectory)/linux
     PYTHON_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64
@@ -44,6 +70,9 @@ jobs:
     PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
     SDK_LOG_LEVEL: DEBUG
 
+  services:
+    postgres: pg12
+
   steps :
     - template: linux.yaml
 
@@ -53,6 +82,7 @@ jobs:
     vmImage: 'macOS-10.15'
 
   variables:
+    SDK_VERSION: 0.0.38
     pythonVersion: 3.9
     BUILD_PATH: $(Build.BinariesDirectory)/macos
     PYTHON_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64
