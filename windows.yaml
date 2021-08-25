@@ -1,7 +1,6 @@
 steps :
 # Note: For windows we use the official python.org embedded python
 - pwsh: |
-    mkdir -p $(BUILD_PATH)
     Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.9.6/python-3.9.6-embed-amd64.zip" -Method "GET" -Outfile $(BUILD_PATH)\cpython-3.9.6-x86_64.zip
     Expand-Archive -Path $(BUILD_PATH)\cpython-3.9.6-x86_64.zip -DestinationPath $(PYTHON_DIR)
   displayName: 'Pull embedded python'
@@ -10,11 +9,6 @@ steps :
     Invoke-WebRequest -uri "https://bootstrap.pypa.io/get-pip.py" -Method "GET" -Outfile $(PYTHON_DIR)\get-pip.py
     $(PYTHON_EXE) $(PYTHON_DIR)\get-pip.py
   displayName: 'Install pip'
-
-- script: |
-    python3 -m pip install asyncpg
-    python3 $(Build.Repository.LocalPath)/contrib/mapi_db_config.py
-  displayName: 'Prepare postgres'
 
 - pwsh: |
     cp -r .\contrib\sitecustomize.py $(PYTHON_DIR)\sitecustomize.py
@@ -26,17 +20,18 @@ steps :
     cd $(SDK_REPO_DIR)
     $(PYTHON_EXE) -m pip install .
     cd $env:TOP_LEVEL_DIR
-  displayName: 'install ElectrumSV-SDK'
+  displayName: 'Install ElectrumSV-SDK'
 
 - template: preinstall_components.yaml
+- template: test_components.yaml
 
 # Overwrites existing $env:PYTHON_DIR.zip archive
 - pwsh: |
     cd $(BUILD_PATH)
-    mkdir -p $(BUILD_PATH)/headless_sdk
+    mkdir $(BUILD_PATH)/headless_sdk
 
     cp -r $(PYTHON_DIR) $(BUILD_PATH)/headless_sdk/python
-    cp -r $(SDK_DATADIR) $(BUILD_PATH)/headless_sdk/SDK_HOME_DIR
+    cp -r $(SDK_HOME_DIR) $(BUILD_PATH)/headless_sdk/SDK_HOME_DIR
 
     cp $(Build.Repository.LocalPath)/contrib/launcher/electrumsv-sdk.py $(BUILD_PATH)/headless_sdk/python/Scripts/electrumsv-sdk.py
     cp $(Build.Repository.LocalPath)/contrib/launcher/electrumsv-sdk.bat $(BUILD_PATH)/headless_sdk/electrumsv-sdk.bat

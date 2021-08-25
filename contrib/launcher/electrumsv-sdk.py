@@ -24,11 +24,7 @@ def load_dotenv(env_path):
 def launch_sdk():
     process = None
     try:
-        if sys.platform == 'win32':
-            process = subprocess.Popen(cmd, env=os.environ.copy())
-        elif sys.platform in {'linux', 'darwin'}:
-            process = subprocess.Popen(f"{cmd}", shell=True, env=os.environ.copy())
-
+        process = subprocess.Popen(cmd, env=os.environ.copy())
         if process:
             process.wait()
     except KeyboardInterrupt:
@@ -51,7 +47,7 @@ if sys.platform == "win32":
 else:
     MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
     ENV_PATH = MODULE_DIR.parent.parent.parent / ".env"
-    PYTHON_EXE = str(MODULE_DIR / 'python.exe')
+    PYTHON_EXE = str(MODULE_DIR / 'python3')
     SDK_MAIN_ENTRYPOINT = str(MODULE_DIR.parent / "lib" / "python3.9" / "site-packages" /
         "electrumsv_sdk" / "__main__.py")
     cmd = [PYTHON_EXE, SDK_MAIN_ENTRYPOINT]

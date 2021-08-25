@@ -13,4 +13,4 @@ else
     exit 0
 fi
 
-$SCRIPTDIR/python/python.exe "$SCRIPTDIR"/python/install/bin/electrumsv-sdk.py "$@"
+$SCRIPTDIR/python/install/bin/python3 "$SCRIPTDIR"/python/install/bin/electrumsv-sdk.py "$@"

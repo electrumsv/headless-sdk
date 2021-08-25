@@ -8,27 +8,6 @@ trigger:
   paths:
     exclude: [ 'README.md' ]
 
-resources:
-  containers:
-  - container: pg12
-    image: postgres:12
-    ports:
-      - 5432:5432
-    env:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-
-  - container: pg12-win32
-    image: stellirin/postgres-windows:12
-    ports:
-      - 5432:5432
-    env:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-
-
 jobs:
 - job: BuildWindows
 
@@ -42,14 +21,15 @@ jobs:
     PYTHON_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64
     PYTHON_EXE: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\python.exe
     PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\Scripts
-    SDK_DATADIR: $(Build.BinariesDirectory)\win32\ElectrumSV-SDK
+    SDK_HOME_DIR: $(Build.BinariesDirectory)\win32\SDK_HOME_DIR
     SDK_REPO_DIR: $(Build.BinariesDirectory)\win32\sdk_repo
     SDK_LOG_LEVEL: DEBUG
-
-  services:
-    postgres: pg12-win32
+    SDK_PORTABLE_MODE: 1
+    SDK_SKIP_POSTGRES_INIT: 1
 
   steps:
+    - script: |
+        mkdir -p $(SDK_HOME_DIR)
     - template: windows.yaml
 
 - job: BuildLinux
@@ -64,16 +44,18 @@ jobs:
     PYTHON_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64
     PYTHON_EXE: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/bin/python3
     PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/bin
-    SDK_DATADIR: $(Build.BinariesDirectory)/linux/ElectrumSV-SDK
+    SDK_HOME_DIR: $(Build.BinariesDirectory)/linux/SDK_HOME_DIR
     SDK_REPO_DIR: $(Build.BinariesDirectory)/linux/sdk_repo
 
     PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
     SDK_LOG_LEVEL: DEBUG
+    SDK_POSTGRES_PORT: 15432
+    SDK_PORTABLE_MODE: 1
+    SDK_SKIP_POSTGRES_INIT: 1
 
-  services:
-    postgres: pg12
-
-  steps :
+  steps:
+    - script: |
+        mkdir -p $(SDK_HOME_DIR)
     - template: linux.yaml
 
 - job: BuildMacOSX
@@ -88,11 +70,16 @@ jobs:
     PYTHON_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64
     PYTHON_EXE: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/bin/python3
     PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/bin
-    SDK_DATADIR: $(Build.BinariesDirectory)/macos/ElectrumSV-SDK
+    SDK_HOME_DIR: $(Build.BinariesDirectory)/macos/SDK_HOME_DIR
     SDK_REPO_DIR: $(Build.BinariesDirectory)/macos/sdk_repo
 
     PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
     SDK_LOG_LEVEL: DEBUG
+    SDK_POSTGRES_PORT: 15432
+    SDK_PORTABLE_MODE: 1
+    SDK_SKIP_POSTGRES_INIT: 1
 
   steps :
+    - script: |
+        mkdir -p $(SDK_HOME_DIR)
     - template: macos.yaml
