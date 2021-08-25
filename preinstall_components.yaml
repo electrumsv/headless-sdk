@@ -11,6 +11,7 @@ steps:
 - script: |
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background status_monitor
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background node
+    sleep 5
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background electrumx
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node generate 1
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background --deterministic-seed electrumsv
@@ -25,6 +26,7 @@ steps:
 
 - script: |
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop node
+    sleep 5
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumx
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumsv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop status_monitor
