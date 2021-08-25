@@ -52,8 +52,8 @@ else:
     MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
     ENV_PATH = MODULE_DIR.parent.parent.parent / ".env"
     PYTHON_EXE = str(MODULE_DIR / 'python.exe')
-    SDK_MAIN_ENTRYPOINT = str(
-        MODULE_DIR.parent / "lib" / "python3.9" / "site-packages" / "electrumsv_sdk" / "__main__.py")
+    SDK_MAIN_ENTRYPOINT = str(MODULE_DIR.parent / "lib" / "python3.9" / "site-packages" /
+        "electrumsv_sdk" / "__main__.py")
     cmd = [PYTHON_EXE, SDK_MAIN_ENTRYPOINT]
     cmd.extend(sys.argv[1:])
     load_dotenv(ENV_PATH)

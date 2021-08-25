@@ -50,25 +50,6 @@ jobs:
     postgres: pg12-win32
 
   steps:
-    - script: |
-        set -e
-        python3 -m pip install -U pylint
-        python3 -m pylint --rcfile ./.pylintrc ./electrumsv-sdk
-        if [ $? -gt 0 ]
-        then
-          # https://docs.pylint.org/en/1.6.0/run.html#exit-codes
-          echo "##vso[task.complete result=Failed;]DONE"
-        fi
-      continueOnError: true
-      displayName: 'pylint'
-
-    - script: |
-        python3 -m pip install mypy
-        yes | python3 -m mypy --install-types
-        python3 -m mypy --config-file mypy.ini
-      continueOnError: true
-      displayName: 'mypy static analysis'
-
     - template: windows.yaml
 
 - job: BuildLinux
