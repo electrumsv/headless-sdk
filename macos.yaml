@@ -36,6 +36,7 @@ steps:
     cp $(Build.Repository.LocalPath)/contrib/launcher/electrumsv-sdk.sh headless_sdk/electrumsv-sdk.sh
     cp $(Build.Repository.LocalPath)/contrib/launcher/.env headless_sdk/.env
     chmod +x headless_sdk/electrumsv-sdk.sh
+    chmod 755 -R headless_sdk/SDK_HOME_DIR
 
     tar -czf headless-sdk-$(SDK_VERSION)-macos-x86_64.tar.gz headless_sdk
   displayName: 'Create compressed archive'
