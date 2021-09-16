@@ -14,8 +14,8 @@ steps:
   displayName: 'Install pip'
 
 - script: |
-    cp -r ./contrib/sitecustomize.py $(PYTHON_DIR)/sitecustomize.py
-    cp -r ./contrib/python39._pth $(PYTHON_DIR)/python39._pth
+    cp -r ./contrib/sitecustomize.py $(PYTHON_EXE)/sitecustomize.py
+    cp -r ./contrib/python39._pth.unix $(PYTHON_EXE)/python39._pth
     export TOP_LEVEL_DIR=$PWD
     git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
     cd $(SDK_REPO_DIR)
