@@ -1,6 +1,6 @@
-python39.zip
+python310.zip
 .
-./python/install/lib/python3.9/site-packages
+./python/install/lib/python3.10/site-packages
 
 # Uncomment to run site.main() automatically
 import site

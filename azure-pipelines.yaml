@@ -15,12 +15,12 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
-    SDK_VERSION: 0.0.38
-    pythonVersion: 3.9
+    SDK_VERSION: 0.0.39
+    pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)\win32
-    PYTHON_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64
-    PYTHON_EXE: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\python.exe
-    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)\win32\cpython-3.9.6-x86_64\Scripts
+    PYTHON_DIR: $(Build.BinariesDirectory)\win32\cpython-3.10.0-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)\win32\cpython-3.10.0-x86_64\python.exe
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)\win32\cpython-3.10.0-x86_64\Scripts
     SDK_HOME_DIR: $(Build.BinariesDirectory)\win32\SDK_HOME_DIR
     SDK_REPO_DIR: $(Build.BinariesDirectory)\win32\sdk_repo
     SDK_LOG_LEVEL: DEBUG
@@ -38,16 +38,16 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   variables:
-    SDK_VERSION: 0.0.38
-    pythonVersion: 3.9
+    SDK_VERSION: 0.0.39
+    pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)/linux
-    PYTHON_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64
-    PYTHON_EXE: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/bin/python3
-    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/bin
+    PYTHON_DIR: $(Build.BinariesDirectory)/linux/cpython-3.10.0-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)/linux/cpython-3.10.0-x86_64/python/install/bin/python3
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/linux/cpython-3.10.0-x86_64/python/install/bin
     SDK_HOME_DIR: $(Build.BinariesDirectory)/linux/SDK_HOME_DIR
     SDK_REPO_DIR: $(Build.BinariesDirectory)/linux/sdk_repo
 
-    PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/linux/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
+    PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/linux/cpython-3.10.0-x86_64/python/install/lib/python$(pythonVersion)/site-packages
     SDK_LOG_LEVEL: DEBUG
     SDK_POSTGRES_PORT: 55432
     SDK_PORTABLE_MODE: 1
@@ -64,16 +64,16 @@ jobs:
     vmImage: 'macOS-10.15'
 
   variables:
-    SDK_VERSION: 0.0.38
-    pythonVersion: 3.9
+    SDK_VERSION: 0.0.39
+    pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)/macos
-    PYTHON_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64
-    PYTHON_EXE: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/bin/python3
-    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/bin
+    PYTHON_DIR: $(Build.BinariesDirectory)/macos/cpython-3.10.0-x86_64
+    PYTHON_EXE: $(Build.BinariesDirectory)/macos/cpython-3.10.0-x86_64/python/install/bin/python3
+    PYTHON_SCRIPTS_DIR: $(Build.BinariesDirectory)/macos/cpython-3.10.0-x86_64/python/install/bin
     SDK_HOME_DIR: $(Build.BinariesDirectory)/macos/SDK_HOME_DIR
     SDK_REPO_DIR: $(Build.BinariesDirectory)/macos/sdk_repo
 
-    PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/macos/cpython-3.9.6-x86_64/python/install/lib/python$(pythonVersion)/site-packages
+    PYTHON_SITE_PACKAGES: $(Build.BinariesDirectory)/macos/cpython-3.10.0-x86_64/python/install/lib/python$(pythonVersion)/site-packages
     SDK_LOG_LEVEL: DEBUG
     SDK_POSTGRES_PORT: 55432
     SDK_PORTABLE_MODE: 1

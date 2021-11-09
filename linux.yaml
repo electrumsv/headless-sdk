@@ -4,8 +4,8 @@ steps:
     sudo apt-get update
     sudo apt-get install zstd
     mkdir -p $(PYTHON_DIR)
-    wget https://github.com/indygreg/python-build-standalone/releases/download/20210724/cpython-3.9.6-x86_64-unknown-linux-gnu-pgo+lto-20210724T1424.tar.zst -O $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst
-    tar -axvf $(BUILD_PATH)/cpython-3.9.6-x86_64.tar.zst -C $(PYTHON_DIR)
+    wget https://github.com/indygreg/python-build-standalone/releases/download/20211017/cpython-3.10.0-x86_64-unknown-linux-gnu-pgo+lto-20211017T1616.tar.zst -O $(BUILD_PATH)/cpython-3.10.0-x86_64.tar.zst
+    tar -axvf $(BUILD_PATH)/cpython-3.10.0-x86_64.tar.zst -C $(PYTHON_DIR)
   displayName: 'Pull embedded python'
 
 - script: |
@@ -15,7 +15,7 @@ steps:
 
 - script: |
     cp -r ./contrib/sitecustomize.py $(PYTHON_EXE)/sitecustomize.py
-    cp -r ./contrib/python39._pth.unix $(PYTHON_EXE)/python39._pth
+    cp -r ./contrib/python310._pth.unix $(PYTHON_EXE)/python310._pth
     export TOP_LEVEL_DIR=$PWD
     git clone --depth 1 https://github.com/electrumsv/electrumsv-sdk.git $(SDK_REPO_DIR)
     cd $(SDK_REPO_DIR)
