@@ -11,5 +11,6 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumx
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumsv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install merchant_api
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install peer_channels
   displayName: 'Pre-install python-based SDK components'
   continueOnError: true
