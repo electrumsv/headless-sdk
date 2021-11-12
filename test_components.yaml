@@ -6,11 +6,12 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background electrumx
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node generate 1
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background --deterministic-seed electrumsv
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background simple_indexer
     sleep 5
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node --id=node1 getinfo
 
-    $(PYTHON_EXE) ./contrib/check_all_started.py 4
+    $(PYTHON_EXE) ./contrib/check_all_started.py 5
   displayName: 'Start all python-based components (testing)'
   continueOnError: true
 
@@ -19,6 +20,7 @@ steps:
     sleep 5
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumx
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumsv
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop simple_indexer
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop status_monitor
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
 

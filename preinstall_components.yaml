@@ -12,5 +12,6 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install electrumsv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install merchant_api
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install peer_channels
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk install simple_indexer
   displayName: 'Pre-install python-based SDK components'
   continueOnError: true
