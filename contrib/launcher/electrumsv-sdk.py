@@ -3,6 +3,8 @@ import sys
 from pathlib import Path
 import os
 
+VERSION = "0.0.6"
+
 
 def load_dotenv(env_path):
     """Avoids 3rd party 'dotenv' dependency because it significantly bloats the final exe and
