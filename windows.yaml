@@ -25,6 +25,17 @@ steps :
 - template: preinstall_components.yaml
 - template: test_components.yaml
 
+- pwsh: |
+    rm $(SDK_HOME_DIR)\component_state.json
+    touch $(SDK_HOME_DIR)\component_state.json
+
+    rm -r $(SDK_HOME_DIR)\component_datadirs\electrumsv
+
+    rm -r $(SDK_HOME_DIR)\logs
+    mkdir -p $(SDK_HOME_DIR)\logs
+  displayName: 'Reset component_state.json'
+  continueOnError: true
+
 # Overwrites existing $env:PYTHON_DIR.zip archive
 - pwsh: |
     cd $(BUILD_PATH)

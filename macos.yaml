@@ -27,6 +27,17 @@ steps:
 - template: test_components.yaml
 
 - script: |
+    rm $(SDK_HOME_DIR)/component_state.json
+    touch $(SDK_HOME_DIR)/component_state.json
+
+    rm -r $(SDK_HOME_DIR)/component_datadirs/electrumsv
+
+    rm -r $(SDK_HOME_DIR)/logs
+    mkdir -p $(SDK_HOME_DIR)/logs
+  displayName: 'Reset component_state.json'
+  continueOnError: true
+
+- script: |
     cd $(BUILD_PATH)
     mkdir headless_sdk
     cp -r $(PYTHON_DIR)/python headless_sdk/python

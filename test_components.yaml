@@ -38,9 +38,3 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk status
   displayName: 'Reset all python-based components (testing)'
   continueOnError: true
-
-- script: |
-    rm $(SDK_HOME_DIR)/component_state.json
-    touch $(SDK_HOME_DIR)/component_state.json
-  displayName: 'Reset component_state.json'
-  continueOnError: true
