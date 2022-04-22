@@ -3,7 +3,7 @@ steps:
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background status_monitor
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background node
     sleep 5
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background electrumx
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background header_sv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk node generate 1
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background --deterministic-seed electrumsv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk start --background simple_indexer
@@ -18,7 +18,7 @@ steps:
 - script: |
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop node
     sleep 5
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumx
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop header_sv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop electrumsv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop simple_indexer
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk stop status_monitor
@@ -31,7 +31,7 @@ steps:
 - script: |
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk reset node
     sleep 5
-    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk reset electrumx
+    $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk reset header_sv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk reset electrumsv
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk reset simple_indexer
     $(PYTHON_SCRIPTS_DIR)/electrumsv-sdk reset status_monitor
