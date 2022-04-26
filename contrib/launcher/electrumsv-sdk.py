@@ -2,6 +2,7 @@ import subprocess
 import sys
 from pathlib import Path
 import os
+import platform
 
 VERSION = "0.0.6"
 
@@ -50,8 +51,9 @@ else:
     MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
     ENV_PATH = MODULE_DIR.parent.parent.parent / ".env"
     PYTHON_EXE = str(MODULE_DIR / 'python3')
-    SDK_MAIN_ENTRYPOINT = str(MODULE_DIR.parent / "lib" / "python3.9" / "site-packages" /
-        "electrumsv_sdk" / "__main__.py")
+    PYTHON_MAJOR_VERSION = platform.python_version().split('.')[1]
+    SDK_MAIN_ENTRYPOINT = str(
+        MODULE_DIR.parent / "lib" / f"python3.{PYTHON_MAJOR_VERSION}" / "site-packages" / "electrumsv_sdk" / "__main__.py")
     cmd = [PYTHON_EXE, SDK_MAIN_ENTRYPOINT]
     cmd.extend(sys.argv[1:])
     load_dotenv(ENV_PATH)
