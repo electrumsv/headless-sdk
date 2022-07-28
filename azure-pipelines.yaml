@@ -15,7 +15,7 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
-    SDK_VERSION: 0.0.43
+    SDK_VERSION: 0.0.44
     pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)\win32
     PYTHON_DIR: $(Build.BinariesDirectory)\win32\cpython-3.10.0-x86_64
@@ -38,7 +38,7 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   variables:
-    SDK_VERSION: 0.0.43
+    SDK_VERSION: 0.0.44
     pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)/linux
     PYTHON_DIR: $(Build.BinariesDirectory)/linux/cpython-3.10.0-x86_64
@@ -64,7 +64,7 @@ jobs:
     vmImage: 'macOS-10.15'
 
   variables:
-    SDK_VERSION: 0.0.43
+    SDK_VERSION: 0.0.44
     pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)/macos
     PYTHON_DIR: $(Build.BinariesDirectory)/macos/cpython-3.10.0-x86_64
