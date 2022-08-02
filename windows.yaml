@@ -1,8 +1,8 @@
 steps :
 # Note: For windows we use the official python.org embedded python
 - pwsh: |
-    Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.10.0/python-3.10.0-embed-amd64.zip" -Method "GET" -Outfile $(BUILD_PATH)\cpython-3.10.0-x86_64.zip
-    Expand-Archive -Path $(BUILD_PATH)\cpython-3.10.0-x86_64.zip -DestinationPath $(PYTHON_DIR)
+    Invoke-WebRequest -uri "https://www.python.org/ftp/python/3.10.5/python-3.10.5-embed-amd64.zip" -Method "GET" -Outfile $(BUILD_PATH)\cpython-3.10.5-x86_64.zip
+    Expand-Archive -Path $(BUILD_PATH)\cpython-3.10.5-x86_64.zip -DestinationPath $(PYTHON_DIR)
   displayName: 'Pull embedded python'
 
 - pwsh: |

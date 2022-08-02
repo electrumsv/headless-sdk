@@ -4,8 +4,8 @@ steps:
     sudo apt-get update
     sudo apt-get install zstd
     mkdir -p $(PYTHON_DIR)
-    wget https://github.com/indygreg/python-build-standalone/releases/download/20211017/cpython-3.10.0-x86_64-unknown-linux-gnu-pgo+lto-20211017T1616.tar.zst -O $(BUILD_PATH)/cpython-3.10.0-x86_64.tar.zst
-    tar -axvf $(BUILD_PATH)/cpython-3.10.0-x86_64.tar.zst -C $(PYTHON_DIR)
+    wget https://github.com/indygreg/python-build-standalone/releases/download/20220630/cpython-3.10.5+20220630-x86_64-unknown-linux-gnu-pgo+lto-full.tar.zst -O $(BUILD_PATH)/cpython-3.10.5-x86_64.tar.zst
+    tar -axvf $(BUILD_PATH)/cpython-3.10.5-x86_64.tar.zst -C $(PYTHON_DIR)
   displayName: 'Pull embedded python'
 
 - script: |

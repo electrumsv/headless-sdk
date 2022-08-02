@@ -10,7 +10,7 @@ MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 if sys.platform == 'win32':
     SITE_PACKAGES = MODULE_DIR / 'Lib' / 'site-packages'
 else:
-    SITE_PACKAGES = MODULE_DIR / 'python' / 'install' / 'lib' / 'python3.9' / 'site-packages'
+    SITE_PACKAGES = MODULE_DIR / 'python' / 'install' / 'lib' / 'python3.10' / 'site-packages'
 
 site.addsitedir(str(SITE_PACKAGES))
 site.USER_BASE = str(MODULE_DIR)
