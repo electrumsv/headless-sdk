@@ -24,35 +24,6 @@ steps:
     cd $TOP_LEVEL_DIR
   displayName: 'Install ElectrumSV-SDK'
 
-- script: |
-    set -e
-    python3 -m pip install testresources
-    python3 -m pip install launchpadlib
-
-    export TOP_LEVEL_DIR=$PWD
-    cd $(SDK_REPO_DIR)
-    python3 -m pip install .
-    cd $TOP_LEVEL_DIR
-
-    export PYTHONPATH=$(Build.Repository.LocalPath):$(Build.Repository.LocalPath)/contrib/;
-    python3 -m pip install asyncpg
-    python3 -m pip install -U pylint
-    python3 -m pylint --rcfile ./.pylintrc .
-    if [ $? -gt 0 ]
-    then
-      # https://docs.pylint.org/en/1.6.0/run.html#exit-codes
-      echo "##vso[task.complete result=Failed;]DONE"
-    fi
-  continueOnError: true
-  displayName: 'Pylint'
-
-- script: |
-    python3 -m pip install mypy
-    yes | python3 -m mypy --install-types
-    python3 -m mypy --config-file mypy.ini
-  continueOnError: true
-  displayName: 'Mypy static analysis'
-
 - template: preinstall_components.yaml
 - template: test_components.yaml
 
