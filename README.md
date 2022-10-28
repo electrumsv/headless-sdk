@@ -56,3 +56,24 @@ If you want sample blockchains and wallets to work with, with different types of
 present from multi-signature to P2PKH, you can find blockchains you can import and scripts
 you can import them with in our
 [simple indexer project](https://github.com/electrumsv/simple-indexer/tree/master/contrib).
+
+
+Example
+~~~~~~~
+
+To import a 115 block chain with a mining wallet that you can restore in ElectrumSV with
+existing mature and immature coins (immature coins are unspendable due to mining rules),
+you can do the following:
+
+```
+git clone https://github.com/electrumsv/simple-indexer.git
+cd simple-indexer/contrib
+python3 scripts/import_blocks.py blockchains/blockchain_115_3677f4
+<in another terminal>
+electrumsv-sdk node generate 1
+```
+
+The reason you need to generate the new block on top of the imported blockchain is that a node
+that does not have any recent blocks will be in "initial download mode" and will not behave like
+an active node. The new block triggers it to leave that mode and start communicating with
+other connected applications fully.
