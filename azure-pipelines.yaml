@@ -15,7 +15,7 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
-    SDK_VERSION: 0.0.47
+    SDK_VERSION: 0.0.48
     pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)\win32
     PYTHON_DIR: $(Build.BinariesDirectory)\win32\cpython-3.10.5-x86_64
@@ -38,7 +38,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
 
   variables:
-    SDK_VERSION: 0.0.47
+    SDK_VERSION: 0.0.48
     pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)/linux
     PYTHON_DIR: $(Build.BinariesDirectory)/linux/cpython-3.10.5-x86_64
@@ -61,10 +61,10 @@ jobs:
 - job: BuildMacOSX
 
   pool:
-    vmImage: 'macOS-10.15'
+    vmImage: 'macOS-latest'
 
   variables:
-    SDK_VERSION: 0.0.47
+    SDK_VERSION: 0.0.48
     pythonVersion: 3.10
     BUILD_PATH: $(Build.BinariesDirectory)/macos
     PYTHON_DIR: $(Build.BinariesDirectory)/macos/cpython-3.10.5-x86_64
